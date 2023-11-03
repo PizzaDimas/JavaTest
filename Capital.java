@@ -63,42 +63,14 @@ public class Capital {
         // цикл увеличивает процентную ставку на 0.5 в случае успешной итерации
         for (int i = 0; (amountOfCapital > 0); i++) {
 
-//           System.out.println(" 11111 remained start year " + amountOfCapital
-//                                                            + " "
-//                                                            + baseExpenses);
-
             // цикл уменьшает каждый год капитал на размер базовых расходов, проводит индексацию по индексу мос биржи и инфляции
             for (int j = 0; j < (2022 - startYear); j++) {
-
-//                 System.out.println("Start year " + amountOfCapital
-//                                                  + " - expenses ("
-//                                                  + baseExpenses
-//                                                  + ") = "
-//                                                  + (amountOfCapital - baseExpenses));
-
-                amountOfCapital = amountOfCapital - baseExpenses;                                             // В начале года происходит списание расходов на год
-                // Так как данных за 2002 год по индексу мос биржи недостаточно для понимания динамики изменения капитала, предполагаем что за 2002 нет изменения рынка.
-                if ((startYear == 2002) && (j == 0)) {
-                    amountOfCapital = amountOfCapital
-                            * 1
-                            * (1 - (Constants.INFLATION_RATE[startYear - 2002 + j] / 100));
-
-//                    System.out.println("Percents and inflation remained " + (j + startYear)
-//                                                                          + " year = "
-//                                                                          + amountOfCapital);
-                } else {
-                    amountOfCapital = amountOfCapital
-                            * (Constants.MOEX_RATE[startYear - 2002 + j]
-                            / Constants.MOEX_RATE[startYear - 2002 - 1 + j]
-                            * (1 - (Constants.INFLATION_RATE[startYear - 2002 + j] / 100)));
-
-//                    System.out.println("Percents and inflation remained " + (j + startYear)
-//                                                                          + " year = "
-//                                                                          + amountOfCapital);
-
-                }
-                baseExpenses = baseExpenses * (1 + (Constants.INFLATION_RATE[startYear - 2002 + j]) / 100);     // Индексация базовых расходов на инфлюцию в конце года
-                if (amountOfCapital < 0) return (percent - 0.5);                                                // При остановке цикла изза истощения капитала возвращается предыдущее значение ставки
+                amountOfCapital = amountOfCapital - baseExpenses;                                              // В начале года происходит списание расходов на год
+                amountOfCapital = amountOfCapital                                                              // Индексация капитала на индекс биржи
+                        * (Constants.MOEX_RATE[startYear - 2002 + 1 + j]
+                        / Constants.MOEX_RATE[startYear - 2002  + j]);
+                baseExpenses = baseExpenses * (1 + (Constants.INFLATION_RATE[startYear - 2002 + j]) / 100);    // Индексация базовых расходов на инфлюцию в конце года
+                if (amountOfCapital < 0) return (percent - 0.5);                                               // При остановке цикла изза истощения капитала возвращается предыдущее значение ставки
             }
             // условия для итерации с новой процентной ставкой
             amountOfCapital = 100;

@@ -11,7 +11,6 @@ public class FireCalculator {
         Capital capital = new Capital();                        // создаем объект типа капитал, чтобы узнать каков будет максимальный процент изъятия капитала.
         capital.enterYearAndCalculate();                        // вызываем метод ввода года и расчет макс процентной ставки
 
-
     }
 
 }
