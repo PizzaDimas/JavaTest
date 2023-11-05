@@ -20,7 +20,10 @@ public class Capital {
      * сможет покрывать свои базовые потребности до 2022 года.
      */
 
-    private int startYear;                                         // первый год жизни с капиталом
+    private int startYear;                                                                                      // первый год жизни с капиталом
+    private int leftYearInterval = 2001;                                                                        // левая невключенная граница интервала значений стартового года
+    private int rightYearInterval = 2022;                                                                       // правая невключенная граница интервала значений стартового года
+
 
     private int getStartYear() throws Exception {
         // здесь идет реализация ввода года начала жизни на проценты с консоли
@@ -35,7 +38,7 @@ public class Capital {
 
     private boolean checkYear(int startYear) {
         // здесь идет реализация статуса соотвествия введенного года начала на соответсвие допустимому интервалу.
-        return ((startYear < 2022) && (startYear > 2001));
+        return ((startYear < rightYearInterval) && (startYear > leftYearInterval));
     }
 
     public void enterYearAndCalculate() throws Exception {
@@ -50,33 +53,40 @@ public class Capital {
         }
     }
 
-    private double passCapitalThroughYear(double amountOfCapital, double baseExpenses, int j){
-        amountOfCapital = amountOfCapital - baseExpenses;                                              // В начале года происходит списание расходов на год
-        amountOfCapital = amountOfCapital                                                              // Индексация капитала на индекс биржи
-                * (Constants.MOEX_RATE[startYear - 2002 + 1 + j]
-                / Constants.MOEX_RATE[startYear - 2002 + j]);
+    private double passCapitalThroughYear(double amountOfCapital, double baseExpenses, int j) {
+        int nextYear = startYear - leftYearInterval + j;                                                         // индекс массива для значения индекса биржи  будущего года
+        int thatYear = startYear - leftYearInterval - 1 + j;                                                     // индекс массива для значения индекса уходящего года
+        amountOfCapital = amountOfCapital - baseExpenses;                                                        // В начале года происходит списание расходов на год
+        amountOfCapital = amountOfCapital                                                                        // Индексация капитала на индекс биржи
+                * (Constants.MOEX_RATE[nextYear]
+                / Constants.MOEX_RATE[thatYear]);
         return amountOfCapital;
     }
 
-    private double indexBaseExpenses(double baseExpenses, int j){
-        return (baseExpenses * (1 + (Constants.INFLATION_RATE[startYear - 2002 + j]) / 100));          // Индексация базовых расходов на инфлюцию в конце года
+    private double indexBaseExpenses(double baseExpenses, int j) {
+        int thatYear = startYear - leftYearInterval - 1 + j;                                                    // индекс массива для значения инфляции уходящего года
+        return (baseExpenses * (1 + (Constants.INFLATION_RATE[thatYear]) / 100));                               // Индексация базовых расходов на инфлюцию в конце года
     }
+
     private double findMaxPercent() {
         // здесь реализован главный метод класса, поиск максимальной процентной ставки
-        double percent;                                                                                // Процентная ставка
-        double amountOfCapital;
-        double baseExpenses;
+        double percent;                                                                                         // Процентная ставка
+        double amountOfCapital;                                                                                 // остаток капитала
+        double baseExpenses;                                                                                    // базовые расходы
+        double step = 0.5;                                                                                      // шаг изыскания
+        double decimalPercent;                                                                                  // десятичный процент
         // цикл увеличивает процентную ставку на 0.5 в случае успешной итерации
-        for (percent = 0.5; (true); percent += 0.5) {
+        for (percent = step; (true); percent += step) {
             // условия для итерации с новой процентной ставкой
             amountOfCapital = 100;
-            baseExpenses = percent / 100 * amountOfCapital;                                            // Базовые расходы, которые составляют изначально 4% от капитала
+            decimalPercent = percent / 100;
+            baseExpenses = decimalPercent * amountOfCapital;                                                    // Базовые расходы, которые составляют изначально 4% от капитала
             // цикл уменьшает каждый год капитал на размер базовых расходов, проводит индексацию
-            for (int j = 0; j < (2022 - startYear); j++) {
+            for (int j = 0; j < (rightYearInterval - startYear); j++) {
                 amountOfCapital = passCapitalThroughYear(amountOfCapital, baseExpenses, j);
                 baseExpenses = indexBaseExpenses(baseExpenses, j);
                 if (amountOfCapital < 0) {
-                    return (percent - 0.5);                                                             // При остановке цикла изза истощения капитала возвращается предыдущее значение ставки
+                    return (percent - step);                                                                    // При остановке цикла изза истощения капитала возвращается предыдущее значение ставки
                 }
             }
         }
