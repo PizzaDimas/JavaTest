@@ -22,7 +22,7 @@ public class Capital {
 
     private int startYear;                                         // первый год жизни с капиталом
 
-    public int getStartYear() throws Exception {
+    private int getStartYear() throws Exception {
         // здесь идет реализация ввода года начала жизни на проценты с консоли
         try {
             Scanner in = new Scanner(System.in);
@@ -61,7 +61,7 @@ public class Capital {
     private double indexBaseExpenses(double baseExpenses, int j){
         return (baseExpenses * (1 + (Constants.INFLATION_RATE[startYear - 2002 + j]) / 100));          // Индексация базовых расходов на инфлюцию в конце года
     }
-    public double findMaxPercent() {
+    private double findMaxPercent() {
         // здесь реализован главный метод класса, поиск максимальной процентной ставки
         double percent;                                                                                // Процентная ставка
         double amountOfCapital;
